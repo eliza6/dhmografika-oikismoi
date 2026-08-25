@@ -1,0 +1,4 @@
+data/
+settlements.db
+__pycache__/
+*.pyc
