@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Δημογραφικά Οικισμών · Απογραφή 2021</title>
+<style>
+  :root{
+    --paper:#F7F5EF;
+    --paper-raised:#FFFFFF;
+    --ink:#1C2321;
+    --ink-soft:#5B6460;
+    --rule:#D9D4C7;
+    --aegean:#1B4B66;
+    --aegean-deep:#123245;
+    --aegean-tint:#E1EAEE;
+    --ochre:#B9822E;
+    --ochre-tint:#F5E9D6;
+    --tab-h:44px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--aegean-tint);}
+
+  header.masthead{
+    padding:2.4rem 2rem 1.4rem;
+    max-width:960px;
+    margin:0 auto;
+    border-bottom:1px solid var(--rule);
+  }
+  .eyebrow{
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--aegean);
+    font-weight:600;
+    margin:0 0 .5rem;
+  }
+  h1{
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,"Times New Roman",serif;
+    font-size:2.1rem;
+    font-weight:600;
+    margin:0 0 .3rem;
+    letter-spacing:-.01em;
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-size:.95rem;
+    margin:0;
+    max-width:56ch;
+  }
+
+  main{
+    max-width:960px;
+    margin:0 auto;
+    padding:1.6rem 2rem 4rem;
+  }
+
+  /* ---------- Search ---------- */
+  .search-wrap{
+    position:relative;
+    margin-bottom:1.4rem;
+  }
+  .search-box{
+    display:flex;
+    align-items:center;
+    background:var(--paper-raised);
+    border:1.5px solid var(--rule);
+    border-radius:10px;
+    padding:0 .9rem;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .search-box:focus-within{
+    border-color:var(--aegean);
+    box-shadow:0 0 0 3px var(--aegean-tint);
+  }
+  .search-box svg{flex:none; color:var(--ink-soft);}
+  #search-input{
+    flex:1;
+    border:none;
+    outline:none;
+    background:transparent;
+    font-size:1.05rem;
+    padding:.85rem .7rem;
+    font-family:inherit;
+    color:var(--ink);
+  }
+  #search-input::placeholder{color:#9AA39D;}
+
+  .results{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0; right:0;
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    box-shadow:0 12px 28px rgba(20,30,28,.10);
+    overflow:hidden;
+    z-index:20;
+    max-height:340px;
+    overflow-y:auto;
+    display:none;
+  }
+  .results.show{display:block;}
+  .result-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:1rem;
+    padding:.65rem 1rem;
+    cursor:pointer;
+    border-bottom:1px solid var(--rule);
+  }
+  .result-item:last-child{border-bottom:none;}
+  .result-item:hover, .result-item.active{background:var(--aegean-tint);}
+  .result-name{font-weight:600; font-size:.96rem;}
+  .result-muni{font-size:.78rem; color:var(--ink-soft); font-weight:400;}
+  .result-pop{
+    font-variant-numeric:tabular-nums;
+    font-size:.82rem;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .result-empty{
+    padding:.9rem 1rem;
+    color:var(--ink-soft);
+    font-size:.9rem;
+  }
+
+  /* ---------- Tabs (browser-style) ---------- */
+  .tabbar{
+    display:flex;
+    align-items:flex-end;
+    gap:2px;
+    overflow-x:auto;
+    scrollbar-width:thin;
+    margin-bottom:0;
+    padding-top:.6rem;
+  }
+  .tabbar:empty{display:none;}
+  .tab{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    height:var(--tab-h);
+    padding:0 .7rem 0 1rem;
+    background:#EDEAE0;
+    color:var(--ink-soft);
+    border:1px solid var(--rule);
+    border-bottom:none;
+    border-radius:9px 9px 0 0;
+    font-size:.87rem;
+    font-weight:500;
+    cursor:pointer;
+    white-space:nowrap;
+    flex:none;
+    max-width:220px;
+    position:relative;
+    top:1px;
+  }
+  .tab .tname{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tab.active{
+    background:var(--paper-raised);
+    color:var(--ink);
+    border-color:var(--rule);
+    border-bottom:1px solid var(--paper-raised);
+    font-weight:600;
+  }
+  .tab-close{
+    flex:none;
+    width:18px; height:18px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    color:var(--ink-soft);
+    font-size:.85rem;
+    line-height:1;
+  }
+  .tab-close:hover{background:rgba(0,0,0,.08); color:var(--ink);}
+
+  .panel{
+    background:var(--paper-raised);
+    border:1px solid var(--rule);
+    border-radius:0 10px 10px 10px;
+    padding:1.8rem;
+    min-height:200px;
+  }
+  .tabbar:empty + .panel{border-radius:10px;}
+
+  .empty-state{
+    text-align:center;
+    padding:3rem 1rem;
+    color:var(--ink-soft);
+  }
+  .empty-state svg{opacity:.35; margin-bottom:.8rem;}
+  .empty-state p{margin:.2rem 0; font-size:.95rem;}
+
+  /* ---------- Settlement header ---------- */
+  .s-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:1rem;
+    margin-bottom:1.6rem;
+    padding-bottom:1.2rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .s-name{
+    font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+    font-size:1.65rem;
+    margin:0 0 .2rem;
+  }
+  .s-muni{color:var(--ink-soft); font-size:.88rem; margin:0;}
+  .s-pop{
+    text-align:right;
+  }
+  .s-pop .num{
+    font-variant-numeric:tabular-nums;
+    font-size:1.7rem;
+    font-weight:700;
+    color:var(--aegean-deep);
+    line-height:1;
+  }
+  .s-pop .lbl{font-size:.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.08em;}
+
+  /* ---------- Data tables ---------- */
+  .table-block{margin-bottom:2.4rem;}
+  .table-block:last-child{margin-bottom:0;}
+
+  .view-toggle{
+    display:inline-flex;
+    gap:2px;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:9px;
+    padding:3px;
+    margin-bottom:1.8rem;
+  }
+  .view-toggle button{
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    font-size:.8rem;
+    padding:.45rem .9rem;
+    border-radius:7px;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .view-toggle button.active{
+    background:var(--paper-raised);
+    color:var(--aegean-deep);
+    font-weight:600;
+    box-shadow:0 1px 2px rgba(20,30,28,.08);
+  }
+
+  .table-sub{
+    font-size:.78rem;
+    color:var(--ink-soft);
+    margin:-.4rem 0 0;
+  }
+
+  .drill-crumbs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+    align-items:center;
+    font-size:.82rem;
+    margin:.8rem 0 .2rem;
+    min-height:22px;
+  }
+  .drill-crumbs span[data-lvl]{
+    cursor:pointer;
+    color:var(--aegean);
+    padding:2px 6px;
+    border-radius:6px;
+  }
+  .drill-crumbs span[data-lvl].active{
+    font-weight:600;
+    background:var(--aegean-tint);
+  }
+  .drill-crumbs span.sep{color:var(--ink-soft);}
+
+  .drill-bar{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color:#fff;
+    text-align:center;
+    padding:4px;
+    background:var(--aegean);
+    transition:opacity .12s;
+  }
+  .drill-bar:nth-child(odd){opacity:.9;}
+  .drill-bar:nth-child(even){opacity:.65;}
+  .drill-bar:hover{opacity:1 !important;}
+  .drill-bar-label{font-size:11px; font-weight:500; line-height:1.3;}
+  .drill-bar-val{font-size:10px; opacity:.9;}
+
+  .car-chart{
+    display:flex;
+    flex-direction:column;
+    gap:.65rem;
+    margin-top:.4rem;
+  }
+  .car-bar-row{
+    display:grid;
+    grid-template-columns:110px 1fr 72px;
+    align-items:center;
+    gap:.7rem;
+  }
+  .car-bar-label{
+    font-size:.82rem;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .car-bar-track{
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:6px;
+    height:20px;
+    overflow:hidden;
+  }
+  .car-bar-fill{
+    height:100%;
+    background:var(--aegean);
+    border-radius:5px 0 0 5px;
+    transition:width .2s ease;
+  }
+  .car-bar-val{
+    font-size:.82rem;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+    text-align:right;
+    color:var(--ink);
+  }
+  .table-title{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--aegean);
+    font-weight:700;
+    margin:0 0 .7rem;
+  }
+  .table-title .n{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:var(--aegean);
+    color:#fff;
+    font-size:.68rem;
+    font-family:Georgia,serif;
+  }
+  .badge-est{
+    text-transform:none;
+    letter-spacing:0;
+    font-weight:500;
+    background:var(--ochre-tint);
+    color:var(--ochre);
+    padding:.15rem .55rem;
+    border-radius:20px;
+    font-size:.7rem;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.87rem;
+  }
+  thead th{
+    text-align:right;
+    font-weight:600;
+    color:var(--ink-soft);
+    font-size:.76rem;
+    padding:.5rem .6rem;
+    border-bottom:1.5px solid var(--ink);
+    white-space:nowrap;
+  }
+  thead th:first-child{text-align:left;}
+  tbody td{
+    text-align:right;
+    padding:.5rem .6rem;
+    border-bottom:1px solid var(--rule);
+    font-variant-numeric:tabular-nums;
+  }
+  tbody td:first-child{
+    text-align:left;
+    font-weight:500;
+    white-space:nowrap;
+  }
+  tbody td:last-child{
+    font-weight:600;
+  }
+  tbody tr:last-child td{
+    border-bottom:none;
+    font-weight:700;
+    border-top:1.5px solid var(--ink);
+  }
+  tbody tr:hover td{background:var(--aegean-tint);}
+  .table-scroll{overflow-x:auto;}
+  .table-note{
+    font-size:.76rem;
+    color:var(--ink-soft);
+    margin-top:.6rem;
+    line-height:1.5;
+  }
+
+  footer{
+    max-width:960px;
+    margin:0 auto;
+    padding:0 2rem 3rem;
+    color:var(--ink-soft);
+    font-size:.78rem;
+    line-height:1.6;
+  }
+
+  @media (max-width:640px){
+    header.masthead, main, footer{padding-left:1.1rem; padding-right:1.1rem;}
+    h1{font-size:1.6rem;}
+    .panel{padding:1.1rem;}
+    .s-pop .num{font-size:1.3rem;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">Απογραφή Πληθυσμού 2021 · ΕΛΣΤΑΤ</p>
+  <h1>Δημογραφικά στοιχεία ανά οικισμό</h1>
+  <p class="subtitle">Αναζήτησε έναν ή περισσότερους οικισμούς για να δεις την κατανομή του πληθυσμού κατά φύλο, ηλικία και επίπεδο εκπαίδευσης.</p>
+</header>
+
+<main>
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search-input" type="text" placeholder="π.χ. Κομοτηνή, Θεσσαλονίκη, Ήφαιστος…" autocomplete="off">
+    </div>
+    <div id="results" class="results"></div>
+  </div>
+
+  <div id="tabbar" class="tabbar"></div>
+  <div id="panel" class="panel">
+    <div class="empty-state" id="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+      <p><strong>Δεν έχει επιλεγεί οικισμός.</strong></p>
+      <p>Χρησιμοποίησε την αναζήτηση παραπάνω για να ξεκινήσεις.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Πηγή: ΕΛΣΤΑΤ, Απογραφή Πληθυσμού–Κατοικιών 2021 (πίνακες Γ01, Γ04, Β02, καθώς και πίνακες απασχόλησης×ηλικίας, απασχόλησης×φύλου, απασχόλησης×εκπαίδευσης ανά δήμο, και αυτοκινήτων×νοικοκυριού ανά Δημοτική Κοινότητα). Οι πίνακες «Ηλικιακή ομάδα × Επίπεδο εκπαίδευσης» και «Φύλο × Απασχόληση × Ηλικία × Εκπαίδευση» δεν δημοσιεύονται σε επίπεδο οικισμού από την ΕΛΣΤΑΤ· οι τιμές είναι εκτιμήσεις με Iterative Proportional Fitting, υπολογισμένες ώστε να συμφωνούν ταυτόχρονα με τις πραγματικές κατανομές του οικισμού όπου αυτές υπάρχουν. Ο πίνακας αυτοκινήτων δεν δημοσιεύεται κάτω από επίπεδο Δημοτικής Κοινότητας -- όλοι οι οικισμοί μιας κοινότητας εμφανίζουν την ίδια κατανομή.
+</footer>
+
+<script>
+const state = {
+  openTabs: [],      // [{code, name}]
+  activeCode: null,
+  cache: {},         // code -> settlement data
+  viewMode: 'absolute', // 'absolute' | 'percent'
+  drillPaths: {},    // code -> [indices] for the table 4 drill-down
+};
+
+const $ = (sel) => document.querySelector(sel);
+const searchInput = $('#search-input');
+const resultsEl = $('#results');
+const tabbarEl = $('#tabbar');
+const panelEl = $('#panel');
+
+let debounceTimer = null;
+let activeResultIndex = -1;
+let currentResults = [];
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  const q = searchInput.value.trim();
+  if (!q) { hideResults(); return; }
+  debounceTimer = setTimeout(() => runSearch(q), 150);
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  if (!resultsEl.classList.contains('show')) return;
+  const items = [...resultsEl.querySelectorAll('.result-item')];
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    activeResultIndex = Math.min(activeResultIndex + 1, items.length - 1);
+    updateActiveItem(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    activeResultIndex = Math.max(activeResultIndex - 1, 0);
+    updateActiveItem(items);
+  } else if (e.key === 'Enter') {
+    if (activeResultIndex >= 0 && currentResults[activeResultIndex]) {
+      selectSettlement(currentResults[activeResultIndex]);
+    }
+  } else if (e.key === 'Escape') {
+    hideResults();
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrap')) hideResults();
+});
+
+function updateActiveItem(items){
+  items.forEach((el, i) => el.classList.toggle('active', i === activeResultIndex));
+  if (items[activeResultIndex]) items[activeResultIndex].scrollIntoView({block:'nearest'});
+}
+
+async function runSearch(q){
+  try{
+    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    currentResults = data;
+    activeResultIndex = -1;
+    renderResults(data);
+  }catch(err){
+    console.error(err);
+  }
+}
+
+function renderResults(items){
+  if (!items.length){
+    resultsEl.innerHTML = `<div class="result-empty">Δεν βρέθηκαν οικισμοί.</div>`;
+    resultsEl.classList.add('show');
+    return;
+  }
+  resultsEl.innerHTML = items.map((it, i) => `
+    <div class="result-item" data-idx="${i}">
+      <div>
+        <div class="result-name">${escapeHtml(it.name)}</div>
+        <div class="result-muni">${escapeHtml(it.municipality || '')}</div>
+      </div>
+      <div class="result-pop">${formatNum(it.population)} κατ.</div>
+    </div>
+  `).join('');
+  resultsEl.classList.add('show');
+  resultsEl.querySelectorAll('.result-item').forEach(el => {
+    el.addEventListener('click', () => selectSettlement(items[+el.dataset.idx]));
+  });
+}
+
+function hideResults(){
+  resultsEl.classList.remove('show');
+  resultsEl.innerHTML = '';
+}
+
+async function selectSettlement(item){
+  searchInput.value = '';
+  hideResults();
+
+  if (!state.openTabs.find(t => t.code === item.code)){
+    state.openTabs.push({code:item.code, name:item.name});
+  }
+  state.activeCode = item.code;
+
+  if (!state.cache[item.code]){
+    renderTabs();
+    renderLoading();
+    try{
+      const res = await fetch(`/api/settlement/${item.code}`);
+      const data = await res.json();
+      state.cache[item.code] = data;
+    }catch(err){
+      console.error(err);
+      renderError();
+      return;
+    }
+  }
+  renderTabs();
+  renderPanel();
+}
+
+function closeTab(code, ev){
+  ev.stopPropagation();
+  state.openTabs = state.openTabs.filter(t => t.code !== code);
+  if (state.activeCode === code){
+    state.activeCode = state.openTabs.length ? state.openTabs[state.openTabs.length-1].code : null;
+  }
+  renderTabs();
+  renderPanel();
+}
+
+function renderTabs(){
+  tabbarEl.innerHTML = state.openTabs.map(t => `
+    <div class="tab ${t.code === state.activeCode ? 'active' : ''}" data-code="${t.code}">
+      <span class="tname">${escapeHtml(t.name)}</span>
+      <span class="tab-close" data-close="${t.code}">✕</span>
+    </div>
+  `).join('');
+  tabbarEl.querySelectorAll('.tab').forEach(el => {
+    el.addEventListener('click', () => {
+      state.activeCode = el.dataset.code;
+      renderTabs();
+      renderPanel();
+    });
+  });
+  tabbarEl.querySelectorAll('.tab-close').forEach(el => {
+    el.addEventListener('click', (ev) => closeTab(el.dataset.close, ev));
+  });
+}
+
+function renderLoading(){
+  panelEl.innerHTML = `<div class="empty-state"><p>Φόρτωση δεδομένων…</p></div>`;
+}
+function renderError(){
+  panelEl.innerHTML = `<div class="empty-state"><p><strong>Σφάλμα φόρτωσης.</strong> Δοκίμασε ξανά.</p></div>`;
+}
+
+function renderPanel(){
+  if (!state.activeCode){
+    panelEl.innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+        <p><strong>Δεν έχει επιλεγεί οικισμός.</strong></p>
+        <p>Χρησιμοποίησε την αναζήτηση παραπάνω για να ξεκινήσεις.</p>
+      </div>`;
+    return;
+  }
+  const d = state.cache[state.activeCode];
+  if (!d){ renderLoading(); return; }
+
+  panelEl.innerHTML = `
+    <div class="s-head">
+      <div>
+        <p class="s-name">${escapeHtml(d.name)}</p>
+        <p class="s-muni">${escapeHtml(d.municipality || '')}</p>
+      </div>
+      <div class="s-pop">
+        <div class="num">${formatNum(d.population)}</div>
+        <div class="lbl">Μόνιμος πληθυσμός</div>
+      </div>
+    </div>
+
+    <div class="view-toggle">
+      <button data-mode="absolute" class="${state.viewMode==='absolute'?'active':''}">Απόλυτοι αριθμοί</button>
+      <button data-mode="percent" class="${state.viewMode==='percent'?'active':''}">Ποσοστά οικισμού</button>
+    </div>
+
+    ${renderTable('1', 'Φύλο × Ηλικιακή ομάδα', d.table_sex_age, {population: d.population})}
+    ${renderTable('2', 'Φύλο × Επίπεδο εκπαίδευσης', d.table_sex_edu, {population: d.population})}
+    ${renderTable('3', 'Ηλικιακή ομάδα × Επίπεδο εκπαίδευσης', d.table_age_edu, {
+        population: d.population,
+        badge: 'εκτίμηση',
+        note: 'Η ΕΛΣΤΑΤ δημοσιεύει αυτόν τον συνδυασμό μόνο σε επίπεδο δήμου. Οι τιμές ανά οικισμό υπολογίστηκαν με Iterative Proportional Fitting (IPF), ώστε να ταιριάζουν ταυτόχρονα με την πραγματική ηλικιακή δομή και την πραγματική εκπαιδευτική δομή του συγκεκριμένου οικισμού.'
+      })}
+    ${d.table_gender_emp ? renderTable('4', 'Φύλο × Απασχόληση', d.table_gender_emp, {
+        population: d.population,
+        badge: 'εκτίμηση',
+        note: 'Δεν δημοσιεύεται ανά οικισμό. Εκτιμήθηκε αναλογικά από τον πίνακα απασχόλησης×φύλου του δήμου, προσαρμοσμένο ώστε το σύνολο κάθε φύλου να ταιριάζει με την πραγματική κατανομή του οικισμού (Γ01).'
+      }) : ''}
+    ${d.table_age_emp ? renderTable('5', 'Ηλικιακή ομάδα × Απασχόληση', d.table_age_emp, {
+        population: d.population,
+        badge: 'εκτίμηση',
+        note: 'Δεν δημοσιεύεται ανά οικισμό. Εκτιμήθηκε αναλογικά από τον πίνακα απασχόλησης×ηλικίας του δήμου, προσαρμοσμένο ώστε το σύνολο κάθε ηλικιακής ομάδας να ταιριάζει με την πραγματική κατανομή του οικισμού (Γ01).'
+      }) : ''}
+    ${d.table_edu_emp ? renderTable('6', 'Επίπεδο εκπαίδευσης × Απασχόληση', d.table_edu_emp, {
+        population: d.population,
+        badge: 'εκτίμηση',
+        note: 'Δεν δημοσιεύεται ανά οικισμό. Εκτιμήθηκε αναλογικά από τον πίνακα απασχόλησης×εκπαίδευσης του δήμου, προσαρμοσμένο ώστε το σύνολο κάθε επιπέδου εκπαίδευσης να ταιριάζει με την πραγματική κατανομή του οικισμού (Γ04).'
+      }) : ''}
+
+    ${d.car_chart ? renderCarChart(d.car_chart) : ''}
+
+    <div class="table-block">
+      <p class="table-title"><span class="n">8</span> Φύλο × Απασχόληση × Ηλικία × Εκπαίδευση ${d.has_joint4d ? '<span class="badge-est">εκτίμηση</span>' : ''}</p>
+      <p class="table-sub">κλικ σε ένα κομμάτι για να δεις πώς χωρίζεται στην επόμενη κατηγορία</p>
+      <div id="drilldown-body"></div>
+      ${d.has_joint4d ? `<p class="table-note">Πλήρης 4D εκτίμηση (population synthesis) με Iterative Proportional Fitting πάνω σε έξι πραγματικούς/εκτιμημένους 2D πίνακες του οικισμού ταυτόχρονα (φύλο×ηλικία, φύλο×εκπαίδευση, ηλικία×εκπαίδευση, ηλικία×απασχόληση, φύλο×απασχόληση, εκπαίδευση×απασχόληση).</p>` : `<p class="table-note">Δεν υπάρχουν αρκετά στοιχεία δήμου για αυτόν τον οικισμό ώστε να υπολογιστεί η εκτίμηση.</p>`}
+    </div>
+  `;
+
+  panelEl.querySelectorAll('.view-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.viewMode = btn.dataset.mode;
+      renderPanel();
+    });
+  });
+
+  if (d.has_joint4d) renderDrilldown(state.activeCode, d.population);
+}
+
+function renderTable(n, title, table, opts){
+  opts = opts || {};
+  const cols = table.columns;
+  const rows = table.rows;
+  const population = opts.population;
+  const mode = state.viewMode;
+  return `
+    <div class="table-block">
+      <p class="table-title"><span class="n">${n}</span> ${title} ${opts.badge ? `<span class="badge-est">${escapeHtml(opts.badge)}</span>` : ''}</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr>${r.map((v,i) => `<td>${i===0 ? escapeHtml(String(v)) : fmtCell(v, mode, population)}</td>`).join('')}</tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${opts.note ? `<p class="table-note">${opts.note}</p>` : ''}
+    </div>
+  `;
+}
+
+function renderCarChart(chart){
+  const mode = state.viewMode;
+  const total = chart.total_households;
+  const maxVal = Math.max(...chart.values);
+  const bars = chart.categories.map((cat, i) => {
+    const v = chart.values[i];
+    const barPct = maxVal > 0 ? (v/maxVal*100) : 0;
+    const display = mode === 'percent' && total
+      ? (v/total*100).toLocaleString('el-GR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%'
+      : formatNum(v);
+    return `
+      <div class="car-bar-row">
+        <div class="car-bar-label">${escapeHtml(cat)}</div>
+        <div class="car-bar-track"><div class="car-bar-fill" style="width:${barPct}%"></div></div>
+        <div class="car-bar-val">${display}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="table-block">
+      <p class="table-title"><span class="n">7</span> Κατανομή αυτοκινήτων ανά νοικοκυριό <span class="badge-est">Δημοτική Κοινότητα</span></p>
+      <div class="car-chart">${bars}</div>
+      <p class="table-note">Δεν δημοσιεύεται ανά οικισμό. Δείχνει την κατανομή της «${escapeHtml(chart.dk_name)}» στην οποία ανήκει ο οικισμός (${formatNum(total)} νοικοκυριά) -- η υπόθεση είναι ότι όλοι οι οικισμοί της ίδιας δημοτικής κοινότητας έχουν την ίδια κατανομή αυτοκινήτων ανά νοικοκυριό.</p>
+    </div>
+  `;
+}
+
+function fmtCell(v, mode, population){
+  if (mode === 'percent'){
+    if (!population) return '—';
+    return (v/population*100).toLocaleString('el-GR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+  }
+  return formatNum(v);
+}
+
+// ---------- Table 4: interactive drill-down for the 4D joint distribution ----------
+
+function getDrillPath(code){
+  if (!state.drillPaths) state.drillPaths = {};
+  if (!state.drillPaths[code]) state.drillPaths[code] = [];
+  return state.drillPaths[code];
+}
+
+async function renderDrilldown(code, population){
+  const container = document.getElementById('drilldown-body');
+  if (!container) return;
+  const path = getDrillPath(code);
+  container.innerHTML = `<div style="padding:1rem 0; color:var(--ink-soft); font-size:.85rem">Φόρτωση…</div>`;
+
+  let data;
+  try{
+    const q = path.length ? `?path=${path.join(',')}` : '';
+    const res = await fetch(`/api/settlement/${code}/joint4d${q}`);
+    data = await res.json();
+  }catch(err){
+    container.innerHTML = `<div style="padding:1rem 0; color:var(--ink-soft); font-size:.85rem">Σφάλμα φόρτωσης.</div>`;
+    return;
+  }
+  if (data.error){
+    container.innerHTML = `<div style="padding:1rem 0; color:var(--ink-soft); font-size:.85rem">${escapeHtml(data.error)}</div>`;
+    return;
+  }
+
+  const crumbsHtml = renderDrillCrumbs(path, data);
+
+  if (data.level === 4){
+    const valStr = state.viewMode === 'percent' && population
+      ? (data.value/population*100).toLocaleString('el-GR',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%'
+      : formatNum(data.value);
+    container.innerHTML = crumbsHtml + `
+      <div style="text-align:center; padding:1.4rem 0">
+        <div style="font-family:Georgia,serif; font-size:1.7rem; color:var(--aegean-deep)">${valStr}</div>
+        <div style="font-size:.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; margin-top:.3rem">${state.viewMode==='percent' ? 'του οικισμού' : 'άτομα σε αυτόν τον συνδυασμό'}</div>
+      </div>`;
+    return;
+  }
+
+  const total = data.values.reduce((a,b)=>a+b,0) || 1;
+  const barsHtml = `
+    <div style="display:flex; height:84px; border-radius:8px; overflow:hidden; gap:2px; margin-top:.6rem">
+      ${data.labels.map((label,i) => {
+        const val = data.values[i];
+        const pct = val/total*100;
+        const showText = pct > 6;
+        const displayVal = state.viewMode === 'percent' && population
+          ? (val/population*100).toLocaleString('el-GR',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%'
+          : formatNum(val);
+        return `<div data-i="${i}" class="drill-bar" style="flex:${Math.max(pct,0.4)}" title="${escapeHtml(label)}: ${displayVal}">
+          ${showText ? `<span class="drill-bar-label">${escapeHtml(label)}</span><span class="drill-bar-val">${displayVal}</span>` : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  container.innerHTML = crumbsHtml + barsHtml;
+  container.querySelectorAll('.drill-bar').forEach(el => {
+    el.addEventListener('click', () => {
+      path.push(+el.dataset.i);
+      renderDrilldown(code, population);
+    });
+  });
+}
+
+function renderDrillCrumbs(path, data){
+  let html = `<div class="drill-crumbs">`;
+  html += `<span data-lvl="-1" class="${path.length===0?'active':''}">Όλος ο πληθυσμός</span>`;
+  (data.path_labels || []).forEach((label, l) => {
+    html += `<span class="sep">›</span><span data-lvl="${l}" class="${l===path.length-1?'active':''}">${escapeHtml(label)}</span>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// event delegation for crumb clicks (content is re-inserted on every render)
+panelEl.addEventListener('click', (e) => {
+  const el = e.target.closest('.drill-crumbs [data-lvl]');
+  if (!el) return;
+  const code = state.activeCode;
+  const path = getDrillPath(code);
+  const lvl = +el.dataset.lvl;
+  state.drillPaths[code] = lvl === -1 ? [] : path.slice(0, lvl+1);
+  const d = state.cache[code];
+  renderDrilldown(code, d.population);
+});
+
+function formatNum(n){
+  if (n === null || n === undefined) return '—';
+  return Number(n).toLocaleString('el-GR');
+}
+function escapeHtml(s){
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
