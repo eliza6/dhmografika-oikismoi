@@ -61,10 +61,10 @@ SOURCE_FILES = {
     "gamma01_sex_age_settlements.xlsx": "568507",         # Γ01: φύλο x ηλικία, ανά οικισμό
     "gamma04_sex_education_settlements.xlsx": "568504",   # Γ04: φύλο x εκπαίδευση, ανά οικισμό
     "beta02_age_education_municipalities.xlsx": "568511", # Β02: ηλικία x εκπαίδευση, ανά δήμο
-    "beta01_employment_age_municipalities.xlsx": "532688",     # Β01: απασχόληση x ηλικία, ανά δήμο
-    "beta02_employment_gender_municipalities.xlsx": "532739",  # Β02: απασχόληση x φύλο, ανά δήμο
-    "beta03_employment_education_municipalities.xlsx": "532738",  # Β03: απασχόληση x εκπαίδευση, ανά δήμο
-    "gamma13_car_household_dimotiki_koinotita.xlsx": "532737",  # Γ13: αυτοκίνητα x νοικοκυριό, ανά δημοτική κοινότητα
+    "beta01_employment_age_municipalities.xlsx": "532739",     # Β01: απασχόληση x ηλικία, ανά δήμο
+    "beta02_employment_gender_municipalities.xlsx": "532738",  # Β02: απασχόληση x φύλο, ανά δήμο
+    "beta03_employment_education_municipalities.xlsx": "532737",  # Β03: απασχόληση x εκπαίδευση, ανά δήμο
+    "gamma13_car_household_dimotiki_koinotita.xlsx": "532688",  # Γ13: αυτοκίνητα x νοικοκυριό, ανά δημοτική κοινότητα
 }
 
 
